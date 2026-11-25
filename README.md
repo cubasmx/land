@@ -1,14 +1,16 @@
 # land
 
-Landing para el QR de la tarjeta de presentación.
+Landing para el QR de la tarjeta de presentación de Julio Cubas Cárdenas y
+Ana Paula Orozco.
 
-Una sola página (`index.html`), **sin CSS**: presenta los dos tipos de servicio,
-ingeniería en sistemas y diseño gráfico, con sus listas y un enlace de WhatsApp
-por persona (`wa.me`, formato 52 + 10 dígitos). HTML semántico pensado para
-leerse en teléfono.
+- `index.html` + `styles.css` — versión publicada, con CSS mínimo (mobile first).
+- `sin-css.html` — la misma página sin ninguna hoja de estilo, como referencia.
 
-Abrir `index.html` en el navegador o servirlo con
-`python3 -m http.server` desde este directorio.
+Presenta los dos tipos de servicio (ingeniería en sistemas y diseño gráfico),
+el aviso de contacto en texto y, al final, la lista de Links: WhatsApp de cada
+quien, teléfono de oficina, portafolio de Ana Paula y el sitio de VEIA.
+
+Local: `python3 -m http.server 8080` desde este directorio.
 
 ## Favicon
 
