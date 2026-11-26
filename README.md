@@ -15,5 +15,5 @@ Local: `python3 -m http.server 8080` desde este directorio.
 ## Favicon
 
 `favicon.svg` (vectorial), `favicon.ico` (16/32/48) y `apple-touch-icon.png` (180).
-Cuadrado verde con degradado y corazón blanco. Regenerar los PNG/ICO con
+Cuadrado verde con degradado y tres nodos blancos unidos por trazos (red). Regenerar los PNG/ICO con
 `python3 tools/favicon.py` (sin dependencias).

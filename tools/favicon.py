@@ -1,33 +1,60 @@
 #!/usr/bin/env python3
-"""Genera favicon (SVG ya existe) y PNG/ICO sin dependencias."""
-import struct, zlib, math, pathlib
+"""Genera favicon PNG/ICO (nodo de red) sin dependencias externas.
 
-VERDE_CLARO = (0x1a, 0xa8, 0x76)
-VERDE_OSCURO = (0x0a, 0x5a, 0x45)
-BLANCO = (0xff, 0xff, 0xff)
+El SVG equivalente vive en favicon.svg. Este script dibuja la misma figura a
+mano: cuadrado verde con degradado, tres nodos blancos unidos por trazos.
+Regenerar: python3 tools/favicon.py
+"""
+import math
+import pathlib
+import struct
+import zlib
+
+VERDE_CLARO = (0x1a, 0xA8, 0x76)
+VERDE_OSCURO = (0x0A, 0x5A, 0x45)
+BLANCO = (0xFF, 0xFF, 0xFF)
+
+# Geometría en un lienzo de 64x64 (la misma del SVG).
+NODOS = ((20, 21), (46, 27), (32, 47))
+RADIO_NODO = 7.0
+TRAMOS = ((NODOS[0], NODOS[1]), (NODOS[1], NODOS[2]), (NODOS[2], NODOS[0]))
+GROSOR = 1.3  # radio del trazo (stroke-width 2.6)
 
 
 def gradiente(t):
     return tuple(round(a + (b - a) * t) for a, b in zip(VERDE_CLARO, VERDE_OSCURO))
 
 
-def dentro_corazon(u, v):
-    s = 0.55
-    x = u / s
-    y = v / s - 0.18
-    return (x * x + y * y - 1) ** 3 - x * x * y * y * y <= 0
+def dist_segmento(x, y, a, b):
+    ax, ay = a
+    bx, by = b
+    dx, dy = bx - ax, by - ay
+    t = ((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy)
+    t = max(0.0, min(1.0, t))
+    px, py = ax + t * dx, ay + t * dy
+    return math.hypot(x - px, y - py)
 
 
-def dentro_rect(px, py, n, radio):
-    radio = radio * n
-    cx = min(max(px, radio), n - radio)
-    cy = min(max(py, radio), n - radio)
-    dx, dy = px - cx, py - cy
-    return dx * dx + dy * dy <= radio * radio
+def dentro_figura(x, y):
+    for cx, cy in NODOS:
+        if (x - cx) ** 2 + (y - cy) ** 2 <= RADIO_NODO ** 2:
+            return True
+    for a, b in TRAMOS:
+        if dist_segmento(x, y, a, b) <= GROSOR:
+            return True
+    return False
+
+
+def dentro_rect(x, y, n, radio):
+    radio *= n
+    cx = min(max(x, radio), n - radio)
+    cy = min(max(y, radio), n - radio)
+    return (x - cx) ** 2 + (y - cy) ** 2 <= radio * radio
 
 
 def render(n, radio, ss=4):
     filas = []
+    escala = 64 / n
     for py in range(n):
         fila = bytearray([0])  # filtro PNG 0
         for px in range(n):
@@ -38,14 +65,16 @@ def render(n, radio, ss=4):
                     y = py + (sy + 0.5) / ss
                     if not dentro_rect(x, y, n, radio):
                         continue
-                    u = x / n * 2 - 1
-                    v = 1 - y / n * 2
-                    if dentro_corazon(u, v):
+                    if dentro_figura(x * escala, y * escala):
                         cr, cg, cb = BLANCO
                     else:
-                        t = (u + v + 2) / 4
-                        cr, cg, cb = gradiente(t)
-                    r += cr; g += cg; b += cb; a += 255
+                        u = x / n
+                        v = y / n
+                        cr, cg, cb = gradiente((u + v) / 2)
+                    r += cr
+                    g += cg
+                    b += cb
+                    a += 255
             total = ss * ss
             if a == 0:
                 fila += bytes((0, 0, 0, 0))
@@ -79,8 +108,10 @@ def ico(tamanos, radio):
     return cab + entradas + datos
 
 
+RADIO_ESQUINA = 14 / 64
+
 base = pathlib.Path(__file__).resolve().parent.parent
-(base / "favicon-32.png").write_bytes(png(32, 0.22))
+(base / "favicon-32.png").write_bytes(png(32, RADIO_ESQUINA))
 (base / "apple-touch-icon.png").write_bytes(png(180, 0.0, ss=3))
-(base / "favicon.ico").write_bytes(ico([16, 32, 48], 0.22))
+(base / "favicon.ico").write_bytes(ico([16, 32, 48], RADIO_ESQUINA))
 print("listo")
