@@ -1,10 +1,21 @@
-/* Mínimo: tipografía, ritmo y un botón. Sin frameworks ni JS. */
+/* Mínimo: tipografía, ritmo y un acento que rota cada día. Sin frameworks. */
 :root {
   --tinta: #14181f;
   --gris: #5b6472;
   --linea: #e6e9ee;
-  --acento: #0f6b52;
+
+  /* Color del acento. Cambia según el día de la semana (ver más abajo);
+     este es el de lunes, y también el respaldo si no hay JS. */
+  --acento: #c2152a;
 }
+
+html[data-dia="1"] { --acento: #c2152a; } /* lunes — rojo señal */
+html[data-dia="2"] { --acento: #c03a12; } /* martes — bermellón */
+html[data-dia="3"] { --acento: #b4761a; } /* miércoles — ámbar */
+html[data-dia="4"] { --acento: #0f6b52; } /* jueves — verde */
+html[data-dia="5"] { --acento: #0c6b7a; } /* viernes — cian */
+html[data-dia="6"] { --acento: #2447b8; } /* sábado — azul */
+html[data-dia="7"] { --acento: #5b32c4; } /* domingo — violeta */
 
 * { box-sizing: border-box; }
 
